@@ -1,13 +1,24 @@
 import pandas as pd
 import requests
 
-token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3OTEzNTQ4LCJpYXQiOjE3NDUzMjE1NDgsImp0aSI6ImM1ZmY3OTI1NWJmMjQxMzhiOWUxNzA0OGU4MGExYjMxIiwidXNlcl9pZCI6NjJ9.ZtWMoyT4OwABN0U38QqGXVbgyqECNcubyF7MWpjcoCc'
-headers = {'Authorization': 'JWT {}'.format(token)}
-params = {'ticker': 'EZTC3', 'ano_tri': '20244T',}
-r = requests.get('https://laboratoriodefinancas.com/api/v1/balanco',params=params, headers=headers)
-dados = r.json()['dados'][0]
-balanco = dados ['balanco'] 
-df= pd.DataFrame(balanco)
+
+def pegar_balanço(ticker, trimestre):
+    token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3OTEzNTQ4LCJpYXQiOjE3NDUzMjE1NDgsImp0aSI6ImM1ZmY3OTI1NWJmMjQxMzhiOWUxNzA0OGU4MGExYjMxIiwidXNlcl9pZCI6NjJ9.ZtWMoyT4OwABN0U38QqGXVbgyqECNcubyF7MWpjcoCc'
+    headers = {'Authorization': 'JWT {}'.format(token)}
+    params = {'ticker': ticker, 'ano_tri': trimestre,}
+    r = requests.get('https://laboratoriodefinancas.com/api/v1/balanco',params=params, headers=headers)
+    dados = r.json()['dados'][0]
+    balanco = dados ['balanco'] 
+    df= pd.DataFrame(balanco)
+    return df
+
+ticker= 'EZTC3'
+trimestre = '20244T'
+df = pegar_balanço (ticker, trimestre)
+
+df23 = pegar_balanço (ticker, '20234T')
+
+
 
 
 def indicador_fundalista(df):
@@ -140,7 +151,26 @@ def indicador_fundalista(df):
     ipl = (imobilizado + intangivel + invest)/pl
     ipl
 
+    indicadores = {
+        "ccl": ccl,
+        "liquidez_corrente": lc,
+        "liquidez_geral": lg,
+        "liquidez_seca": ls,
+        "liquidez_imediata": li,
+        "endividamento": endividamento,
+        "solvencia": solv,
+        "relacao_ct_cp": ctcp,
+        "composicao_endividamento": ce,
+        "ipl": ipl
+         }
+    return indicadores
 
+
+
+
+
+   
+def calcular_com_2023 (df23,df):
 
 
 
@@ -153,16 +183,8 @@ def indicador_fundalista(df):
     cmv        ################ valor está diferente da planilha do filipe
 
 
-
-    #pme (estoque médio/cmv)*360  #excel: 1892,01333    ########################################################
+ #pme (estoque médio/cmv)*360  #excel: 1892,01333    ########################################################
     #vs code: 1089.33
-
-    params2 = {'ticker': 'EZTC3', 'ano_tri': '20234T',}
-    r2 = requests.get('https://laboratoriodefinancas.com/api/v1/balanco',params=params2, headers=headers)
-    dados2 = r2.json()['dados'][0]
-    balanco2 = dados2['balanco']
-    df23= pd.DataFrame(balanco2)
-
 
 
     estoque24_1 = df[df['descricao'].str.contains('estoques', case=False)][["valor"]].values[0][0]
@@ -191,10 +213,10 @@ def indicador_fundalista(df):
 
     #pmrv (clientes médios/receita)*360    excel: 937,83      ########################################################
     #vscode: 64,87
-    clientes = df[df['descricao'].str.contains('Contas a receber de clientes', case=False)][["valor"]].values[0][0]
-    clientes ############## valor de clientes está diferente (lá clientes é mesmo contas a receber de clientes?)                                     
+    clientes = df[df['descricao'].str.contains('clientes', case=False)] [["valor"]].values[0][0]
+    clientes                                      
 
-    clientes23 = df23[df23['descricao'].str.contains('Contas a receber de clientes', case=False)][["valor"]].values[0][0]
+    clientes23 = df23[df23['descricao'].str.contains('clientes', case=False)][["valor"]].values[0][0]
     clientes23
     clientes_med = (clientes + clientes23)/2
 
@@ -245,8 +267,7 @@ def indicador_fundalista(df):
     #vs code: 1.594.745
 
     acf = caixa + aplicacoes
-caixa
-aplicacoes
+
 
     aco = ac - acf   #confirmar fórmula na planilha do filipe
     aco
@@ -320,17 +341,7 @@ aplicacoes
     rdlpl = dl/(dl +pl)
     rdlpl
     
-    indicadores = {
-        "ccl": ccl,
-        "liquidez_corrente": lc,
-        "liquidez_geral": lg,
-        "liquidez_seca": ls,
-        "liquidez_imediata": li,
-        "endividamento": endividamento,
-        "solvencia": solv,
-        "relacao_ct_cp": ctcp,
-        "composicao_endividamento": ce,
-        "ipl": ipl,
+    indicadores_23 = {
         "cmv": cmv,
         "pme": pme,
         "ge": ge,
@@ -348,7 +359,58 @@ aplicacoes
         "relacao_divida_liquida_pl": rdlpl
     }
     
-    return indicadores
+    return indicadores_23
 
 dic_eztec = indicador_fundalista(df)
 dic_eztec = indicador_fundalista(df)
+indicador_fundalista(df)
+calcular_com_2023(df23,df)
+
+
+
+
+#cyrella
+df_cy = pegar_balanço('CYRE3', '20244T')
+indicador_fundalista(df_cy)
+df23_cy = pegar_balanço('CYRE3', '20234T')
+calcular_com_2023(df23_cy,df_cy)
+
+indicadores_cy = calcular_com_2023(df23_cy, df_cy)
+indicadores_cy
+
+
+
+#even
+df_ev = pegar_balanço('EVEN3', '20244T')
+indicador_fundalista(df_ev)
+df23_ev = pegar_balanço('EVEN3', '20234T')
+calcular_com_2023(df23_ev,df_ev)
+indicadores_ev = calcular_com_2023(df23_ev, df_ev)
+indicadores_ev
+
+
+#jhsf
+df_jh = pegar_balanço('JHSF3', '20244T')
+indicador_fundalista(df_jh)
+df23_jh = pegar_balanço('JHSF3', '20234T')
+calcular_com_2023(df23_jh,df_jh)
+indicadores_jh = calcular_com_2023(df23_jh, df_jh)
+indicadores_jh
+
+
+#tecnisa 
+df_tc = pegar_balanço('TCSA3', '20244T')
+indicador_fundalista(df_tc)
+df23_tc = pegar_balanço('TCSA3', '20234T')
+calcular_com_2023(df23_tc,df_tc)
+indicadores_tc = calcular_com_2023(df23_tc, df_tc)
+indicadores_tc
+
+
+#gafisa
+df_ga = pegar_balanço('GFSA3', '20244T')
+indicador_fundalista(df_ga)
+df23_ga = pegar_balanço('GFSA3', '20234T')
+calcular_com_2023(df23_ga,df_ga)
+indicadores_ga = calcular_com_2023(df23_ga, df_ga)
+indicadores_ga
