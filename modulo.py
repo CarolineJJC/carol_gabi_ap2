@@ -45,7 +45,7 @@ def pegar_preco_corrigido(ticker,data_ini,data_fim):
     'ticker': ticker,
     'data_ini': data_ini,
     'data_fim': data_fim
-}
+    }
     r = requests.get('https://laboratoriodefinancas.com/api/v1/preco-corrigido',params=params, headers=headers)
     dados = r.json()['dados']
     return pd.DataFrame(dados)

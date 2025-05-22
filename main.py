@@ -1,5 +1,7 @@
-from modulo import (pegar_balanco,indicador_comparacao,pegar_preco_corrigido,pegar_preco_diversos)
+from main import (pegar_balanco,indicador_comparacao,pegar_preco_corrigido,pegar_preco_diversos)
 import pandas as pd 
+
+
 
 def main (): 
     list_ticker = ["CYRE3", "GFSA3", "TCSA3", "EVEN3","JHSF3", "EZTC3"]
@@ -18,10 +20,14 @@ def main ():
             df_comparacao=pd.concat([df_comparacao,df_final],axis=0, ignore_index=True)
     print (df_comparacao)
 
-    #Backtest
+
+
+
+
+    #Backtest (fazer 5 anos de backtest)
     ticker =  "JHSF3"
     data_ini = "2019-04-01"
-    data_fim = "2019-03-31"
+    data_fim = "2020-03-31"
     df_preco= pegar_preco_corrigido(ticker,data_ini,data_fim)
     preco_ini = df_preco[0:1]["fechamento"].iloc[0]
     preco_fim = df_preco[-1:]["fechamento"].iloc[0]
@@ -35,6 +41,13 @@ def main ():
     preco_fim = df_ibov[-1:]["fechamento"].iloc[0]
     lucro_ibov= (preco_fim/preco_ini)-1
     print(lucro_ibov)
+    df_ibov = df_ibov[["data","fechamento"]]
+    df_ibov = df_ibov.rename(columns={"fechamento": "ibov"})
+
+    df_preco = df_preco[["data","fechamento"]]
+    df_preco = df_preco.rename(columns={"fechamento": "JHSF3"})
+    df_grafico = pd.merge(df_preco, df_ibov)
+    df_grafico.plot()
 
 main()
 
