@@ -3,7 +3,7 @@ import requests
 
 
 def pegar_balanço(ticker, trimestre):
-    token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3OTEzNTQ4LCJpYXQiOjE3NDUzMjE1NDgsImp0aSI6ImM1ZmY3OTI1NWJmMjQxMzhiOWUxNzA0OGU4MGExYjMxIiwidXNlcl9pZCI6NjJ9.ZtWMoyT4OwABN0U38QqGXVbgyqECNcubyF7MWpjcoCc'
+    token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwOTM1MjkwLCJpYXQiOjE3NDgzNDMyOTAsImp0aSI6IjQ1ZmFjZmJhMDY0ODRlM2Y5MzY2YTM4NTc3NGMyYTkxIiwidXNlcl9pZCI6NjJ9.EAUCOTA7aSxtnxjjmhgh-SysWJuYEzJ59osxbi_tWfg'
     headers = {'Authorization': 'JWT {}'.format(token)}
     params = {'ticker': ticker, 'ano_tri': trimestre,}
     r = requests.get('https://laboratoriodefinancas.com/api/v1/balanco',params=params, headers=headers)

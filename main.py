@@ -1,4 +1,4 @@
-from main import (pegar_balanco,indicador_comparacao,pegar_preco_corrigido,pegar_preco_diversos)
+from modulo import (pegar_balanco,indicador_comparacao,pegar_preco_corrigido,pegar_preco_diversos)
 import pandas as pd 
 
 
@@ -54,35 +54,35 @@ main()
 
 
 
-#20244T
- ticker       roe       eva
-0  CYRE3  0.386169  0.227167 #Alta rentabilidade e forte geração de valor econômico.
-1  GFSA3 -0.041724 -0.198063 #ROE e EVA negativos → prejuízo e destruição de valor.
-2  TCSA3 -0.783068 -0.937495 #Ambos extremamente negativos → pior desempenho.
-3  EVEN3  0.127131 -0.032225 #ROE positivo modesto, mas destrói valor.
-4  JHSF3  0.295226  0.138970 #ROE e EVA positivos → rentável e gera valor.
-5  EZTC3  0.175592  0.011944 #ROE moderado, EVA levemente positivo → rentável, mas geração de valor quase nula.
+# #20244T
+#  ticker       roe       eva
+# 0  CYRE3  0.386169  0.227167 #Alta rentabilidade e forte geração de valor econômico.
+# 1  GFSA3 -0.041724 -0.198063 #ROE e EVA negativos → prejuízo e destruição de valor.
+# 2  TCSA3 -0.783068 -0.937495 #Ambos extremamente negativos → pior desempenho.
+# 3  EVEN3  0.127131 -0.032225 #ROE positivo modesto, mas destrói valor.
+# 4  JHSF3  0.295226  0.138970 #ROE e EVA positivos → rentável e gera valor.
+# 5  EZTC3  0.175592  0.011944 #ROE moderado, EVA levemente positivo → rentável, mas geração de valor quase nula.
 
-1º lugar: CYRE3
-2º lugar: JHSF3 
-3º lugar: EZTC3  
+# 1º lugar: CYRE3
+# 2º lugar: JHSF3 
+# 3º lugar: EZTC3  
 
-#20234T
-  ticker       roe       eva
-0  CYRE3  0.260170  0.101577
-1  GFSA3 -0.228983 -0.384907
-2  TCSA3 -0.206407 -0.361832
-3  EVEN3  0.237017  0.076625
-4  JHSF3  0.190645  0.033460
-5  EZTC3  0.104609 -0.060054
+# #20234T
+#   ticker       roe       eva
+# 0  CYRE3  0.260170  0.101577
+# 1  GFSA3 -0.228983 -0.384907
+# 2  TCSA3 -0.206407 -0.361832
+# 3  EVEN3  0.237017  0.076625
+# 4  JHSF3  0.190645  0.033460
+# 5  EZTC3  0.104609 -0.060054
 
-#Redimento da empresa Cyrela: 0.9188524513259853
-#Comparar com o Ibovespa no mesmo período: 0.262053474671448
+# #Redimento da empresa Cyrela: 0.9188524513259853
+# #Comparar com o Ibovespa no mesmo período: 0.262053474671448
 
-  ticker       roe       eva
-0  CYRE3  0.206481  0.046474
-1  GFSA3 -0.031510 -0.189107
-2  TCSA3 -0.554318 -0.715840
-3  EVEN3  0.152058 -0.005950
-4  JHSF3  0.215795  0.055991
-5  EZTC3  0.152491 -0.017082
+#   ticker       roe       eva
+# 0  CYRE3  0.206481  0.046474
+# 1  GFSA3 -0.031510 -0.189107
+# 2  TCSA3 -0.554318 -0.715840
+# 3  EVEN3  0.152058 -0.005950
+# 4  JHSF3  0.215795  0.055991
+# 5  EZTC3  0.152491 -0.017082

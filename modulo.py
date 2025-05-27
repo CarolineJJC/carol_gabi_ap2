@@ -1,9 +1,11 @@
 import pandas as pd
 import requests
 
+token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNTA2NzgwLCJpYXQiOjE3NDc5MTQ3ODAsImp0aSI6IjI5MDNiYzY1YzJmMjRhMmM4ZWMyYjc1OWVmZjYxOTUzIiwidXNlcl9pZCI6NjJ9.6Ym97dsBaUXrnwCmheBQvYq-O1bIwTGkRgPojnVKVFM'
+headers = {'Authorization': 'JWT {}'.format(token)}
+
+
 def pegar_balanco (ticker,trimestre):
-    token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3OTEzNTQ4LCJpYXQiOjE3NDUzMjE1NDgsImp0aSI6ImM1ZmY3OTI1NWJmMjQxMzhiOWUxNzA0OGU4MGExYjMxIiwidXNlcl9pZCI6NjJ9.ZtWMoyT4OwABN0U38QqGXVbgyqECNcubyF7MWpjcoCc'
-    headers = {'Authorization': 'JWT {}'.format(token)}
     params = {'ticker': ticker, 'ano_tri': trimestre,}
     r = requests.get('https://laboratoriodefinancas.com/api/v1/balanco',params=params, headers=headers)
     dados = r.json()['dados'][0]
@@ -18,26 +20,26 @@ def valor_contabil(df, conta, descricao):
     return valor
 
 def indicador_comparacao(df): 
-        lucro = valor_contabil(df,'^3.*','lucro')
-        pl = valor_contabil(df,'^2.*','patri')
-        roe = lucro / pl 
-        capital_oneroso = valor_contabil(df,'^2.0','^empr.stimo')+(valor_contabil(df,'^2.0','^deb.ntures'))
-        investimento = capital_oneroso + pl 
-        wi = capital_oneroso/investimento
-        ki = 0.15
-        we = pl/investimento 
-        ke = 0.17 
-        wacc = wi*ki + we*ke 
-        eva = roe - wacc
-        return{
-             "roe":roe,
-             "eva":eva, 
-        }
+    lucro = valor_contabil(df,'^3.*','lucro')
+    pl = valor_contabil(df,'^2.*','patri')
+    roe = lucro / pl 
+    capital_oneroso = valor_contabil(df,'^2.0','^empr.stimo')+(valor_contabil(df,'^2.0','^deb.ntures'))
+    investimento = capital_oneroso + pl 
+    wi = capital_oneroso/investimento
+    ki = 0.15
+    we = pl/investimento 
+    ke = 0.17 
+    wacc = wi*ki + we*ke 
+    eva = roe - wacc
+    return{
+            "roe":roe,
+            "eva":eva, 
+    }
 
 import requests
 
 
-token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3OTEzNTQ4LCJpYXQiOjE3NDUzMjE1NDgsImp0aSI6ImM1ZmY3OTI1NWJmMjQxMzhiOWUxNzA0OGU4MGExYjMxIiwidXNlcl9pZCI6NjJ9.ZtWMoyT4OwABN0U38QqGXVbgyqECNcubyF7MWpjcoCc'
+token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNTA2NzgwLCJpYXQiOjE3NDc5MTQ3ODAsImp0aSI6IjI5MDNiYzY1YzJmMjRhMmM4ZWMyYjc1OWVmZjYxOTUzIiwidXNlcl9pZCI6NjJ9.6Ym97dsBaUXrnwCmheBQvYq-O1bIwTGkRgPojnVKVFM'
 headers = {'Authorization': 'JWT {}'.format(token)}
 
 def pegar_preco_corrigido(ticker,data_ini,data_fim):
