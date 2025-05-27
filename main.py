@@ -5,12 +5,10 @@ import pandas as pd
 
 def main (): 
     list_ticker = ["CYRE3", "GFSA3", "TCSA3", "EVEN3","JHSF3", "EZTC3"]
-    list_tri = ["20194T"]
+    list_tri = ["EZTC34T"]
     df_comparacao = pd.DataFrame()
     for ticker in list_ticker: 
         for trimestre in list_tri: 
-            #ticker = "EZTC3"
-           #trimestre = "20194T"
             df = pegar_balanco(ticker,trimestre)
             comparacao = indicador_comparacao(df)
             df_final = pd.DataFrame()
@@ -24,10 +22,10 @@ def main ():
 
 
 
-    #Backtest (fazer 5 anos de backtest)
-    ticker =  "JHSF3"
-    data_ini = "2019-04-01"
-    data_fim = "2020-03-31"
+    #Backtest 
+    ticker =  "EZTC3"
+    data_ini = "2024-05-01"
+    data_fim = "2025-05-01"
     df_preco= pegar_preco_corrigido(ticker,data_ini,data_fim)
     preco_ini = df_preco[0:1]["fechamento"].iloc[0]
     preco_fim = df_preco[-1:]["fechamento"].iloc[0]

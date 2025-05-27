@@ -161,7 +161,16 @@ def indicador_fundalista(df):
         "solvencia": solv,
         "relacao_ct_cp": ctcp,
         "composicao_endividamento": ce,
-        "ipl": ipl
+        "ipl": ipl,
+        "caixa": caixa,
+        "aplicacoes": aplicacoes,
+        "ac": ac,
+        "pc": pc,
+        "pl": pl,
+        "disponivel": disponivel,
+        "imobilizado": imobilizado,
+        "intangivel": intangivel,
+        "investimentos": invest
          }
     return indicadores
 
@@ -170,7 +179,7 @@ def indicador_fundalista(df):
 
 
    
-def calcular_com_2023 (df23,df):
+def calcular_com_2023 (df23,indicadores,df):
 
 
 
@@ -266,13 +275,13 @@ def calcular_com_2023 (df23,df):
     #ncg (aco - pco)    #excel: 1.623.065
     #vs code: 1.594.745
 
-    acf = caixa + aplicacoes
+    acf = indicadores["caixa"] + indicadores["aplicacoes"]
 
 
-    aco = ac - acf   #confirmar fórmula na planilha do filipe
+    aco = indicadores["ac"] - acf   #confirmar fórmula na planilha do filipe
     aco
     acf #certo
-    ac #certo
+    indicadores["ac"] #certo
 
 
     emprestimos1 = df[df['descricao'].str.contains('empr.stimo', case=False)][["valor"]].values[0][0]
@@ -283,7 +292,7 @@ def calcular_com_2023 (df23,df):
 
 
     pcf = emprestimos1 + emprestimos2 + div + pr + debentures
-    pco = pc - pcf
+    pco = indicadores["pc"] - pcf
                               #revisar antes planilha do filipe para ver o que entra em pcf e pco
     ngc = aco - pco
     ngc
@@ -300,7 +309,7 @@ def calcular_com_2023 (df23,df):
 
     #capital de giro      #excel: 2233724
     #vs code: 2233724.0
-    cg = ac-pc
+    cg = indicadores["ac"]- indicadores["pc"] 
     cg
 
 
@@ -321,24 +330,24 @@ def calcular_com_2023 (df23,df):
     po = debent1+debent2+emprestimos1+emprestimos2+emprestimos3+emprestimos4
     po
 
-    dl = po - (disponivel+aplicacoes)
+    dl = po - (indicadores['disponivel']+indicadores['aplicacoes'])
     dl
 
     #investimento (po + pl)  #excel: 6019508   ########################################################################
     #vs code: 7155890.0
 
-    inv = po + pl
+    inv = po + indicadores['pl']  
     inv
 
     #capital oneroso (divida liquida + pl)  #excel: 5249076
     #vs code: 5686407.0
 
-    co = dl + pl
+    co = dl + indicadores['pl']  
     co
 
     #relação divida liquida pl (divida liquida / divida liquida + pl)  #excel: 0,074941748  ############################################################
     #vs code: 0.14
-    rdlpl = dl/(dl +pl)
+    rdlpl = dl/(dl +indicadores['pl']  )
     rdlpl
     
     indicadores_23 = {
@@ -361,10 +370,14 @@ def calcular_com_2023 (df23,df):
     
     return indicadores_23
 
+
+ticker = 'EZTC3'
+trimestre = '20244T'
+df = pegar_balanço(ticker, trimestre)
+df23 = pegar_balanço(ticker, '20234T')
 dic_eztec = indicador_fundalista(df)
-dic_eztec = indicador_fundalista(df)
-indicador_fundalista(df)
-calcular_com_2023(df23,df)
+
+indicadores_23 = calcular_com_2023(df23,dic_eztec,df)
 
 
 
@@ -373,9 +386,9 @@ calcular_com_2023(df23,df)
 df_cy = pegar_balanço('CYRE3', '20244T')
 indicador_fundalista(df_cy)
 df23_cy = pegar_balanço('CYRE3', '20234T')
-calcular_com_2023(df23_cy,df_cy)
+dic_cy = indicador_fundalista(df_cy)
+indicadores_cy = calcular_com_2023(df23_cy, dic_cy, df_cy)
 
-indicadores_cy = calcular_com_2023(df23_cy, df_cy)
 indicadores_cy
 
 
@@ -384,8 +397,8 @@ indicadores_cy
 df_ev = pegar_balanço('EVEN3', '20244T')
 indicador_fundalista(df_ev)
 df23_ev = pegar_balanço('EVEN3', '20234T')
-calcular_com_2023(df23_ev,df_ev)
-indicadores_ev = calcular_com_2023(df23_ev, df_ev)
+dic_ev = indicador_fundalista(df_ev)
+indicadores_ev = calcular_com_2023(df23_ev, dic_ev, df_ev)
 indicadores_ev
 
 
@@ -393,8 +406,8 @@ indicadores_ev
 df_jh = pegar_balanço('JHSF3', '20244T')
 indicador_fundalista(df_jh)
 df23_jh = pegar_balanço('JHSF3', '20234T')
-calcular_com_2023(df23_jh,df_jh)
-indicadores_jh = calcular_com_2023(df23_jh, df_jh)
+dic_jh = indicador_fundalista(df_jh)
+indicadores_jh = calcular_com_2023(df23_jh, dic_jh, df_jh)
 indicadores_jh
 
 
@@ -402,8 +415,8 @@ indicadores_jh
 df_tc = pegar_balanço('TCSA3', '20244T')
 indicador_fundalista(df_tc)
 df23_tc = pegar_balanço('TCSA3', '20234T')
-calcular_com_2023(df23_tc,df_tc)
-indicadores_tc = calcular_com_2023(df23_tc, df_tc)
+dic_tc = indicador_fundalista(df_tc)
+indicadores_tc = calcular_com_2023(df23_tc, dic_tc,df_tc)
 indicadores_tc
 
 
@@ -411,6 +424,6 @@ indicadores_tc
 df_ga = pegar_balanço('GFSA3', '20244T')
 indicador_fundalista(df_ga)
 df23_ga = pegar_balanço('GFSA3', '20234T')
-calcular_com_2023(df23_ga,df_ga)
-indicadores_ga = calcular_com_2023(df23_ga, df_ga)
+dic_ga = indicador_fundalista(df_ga)
+indicadores_ga = calcular_com_2023(df23_ga,dic_ga, df_ga)
 indicadores_ga
