@@ -1,6 +1,96 @@
 import pandas as pd
 import requests
 
+token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNTA2NzgwLCJpYXQiOjE3NDc5MTQ3ODAsImp0aSI6IjI5MDNiYzY1YzJmMjRhMmM4ZWMyYjc1OWVmZjYxOTUzIiwidXNlcl9pZCI6NjJ9.6Ym97dsBaUXrnwCmheBQvYq-O1bIwTGkRgPojnVKVFM'
+headers = {'Authorization': 'JWT {}'.format(token)}
+
+
+def pegar_balanco (ticker,trimestre):
+    params = {'ticker': ticker, 'ano_tri': trimestre,}
+    r = requests.get('https://laboratoriodefinancas.com/api/v1/balanco',params=params, headers=headers)
+    dados = r.json()['dados'][0]
+    balanco = dados ['balanco'] 
+    df= pd.DataFrame(balanco)
+    return df 
+
+def valor_contabil(df, conta, descricao):
+    filtro_conta = df['conta'].str.contains(conta, case=False)
+    filtro_descricao = df['descricao'].str.contains(descricao, case=False)
+    valor = sum(df[filtro_conta & filtro_descricao]['valor'].values)
+    return valor
+
+def indicador_comparacao(df): 
+    lucro = valor_contabil(df,'^3.*','lucro')
+    pl = valor_contabil(df,'^2.*','patri')
+    roe = lucro / pl 
+    capital_oneroso = valor_contabil(df,'^2.0','^empr.stimo')+(valor_contabil(df,'^2.0','^deb.ntures'))
+    investimento = capital_oneroso + pl 
+    wi = capital_oneroso/investimento
+    ki = 0.15
+    we = pl/investimento 
+    ke = 0.17 
+    wacc = wi*ki + we*ke 
+    eva = roe - wacc
+    return{
+            "roe":roe,
+            "eva":eva, 
+    }
+
+import requests
+
+
+token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwNTA2NzgwLCJpYXQiOjE3NDc5MTQ3ODAsImp0aSI6IjI5MDNiYzY1YzJmMjRhMmM4ZWMyYjc1OWVmZjYxOTUzIiwidXNlcl9pZCI6NjJ9.6Ym97dsBaUXrnwCmheBQvYq-O1bIwTGkRgPojnVKVFM'
+headers = {'Authorization': 'JWT {}'.format(token)}
+
+def pegar_preco_corrigido(ticker,data_ini,data_fim):
+    params = {
+    'ticker': ticker,
+    'data_ini': data_ini,
+    'data_fim': data_fim
+    }
+    r = requests.get('https://laboratoriodefinancas.com/api/v1/preco-corrigido',params=params, headers=headers)
+    dados = r.json()['dados']
+    return pd.DataFrame(dados)
+
+def pegar_preco_diversos(ticker,data_ini,data_fim):
+    params = {
+    'ticker': ticker,
+    'data_ini': data_ini,
+    'data_fim': data_fim
+    }
+    r = requests.get('https://laboratoriodefinancas.com/api/v1/preco-diversos', params=params, headers=headers)
+    dados = r.json()['dados']
+    return pd.DataFrame(dados)
+
+import matplotlib.pyplot as plt
+
+def backtest(ticker, data_ini, data_fim):
+    df_preco = pegar_preco_corrigido(ticker, data_ini, data_fim)
+    preco_ini = df_preco[0:1]["fechamento"].iloc[0]
+    preco_fim = df_preco[-1:]["fechamento"].iloc[0]
+    lucro = (preco_fim / preco_ini) - 1
+    print(lucro)
+
+    # Ibovespa
+    df_ibov = pegar_preco_diversos("ibov", data_ini, data_fim)
+    preco_ini = df_ibov[0:1]["fechamento"].iloc[0]
+    preco_fim = df_ibov[-1:]["fechamento"].iloc[0]
+    lucro_ibov = (preco_fim / preco_ini) - 1
+    print(lucro_ibov)
+
+    df_ibov = df_ibov[["data", "fechamento"]].rename(columns={"fechamento": "ibov"})
+    df_preco = df_preco[["data", "fechamento"]].rename(columns={"fechamento": ticker})
+    df_grafico = pd.merge(df_preco, df_ibov, on="data")
+
+    df_grafico.set_index("data", inplace=True)
+    df_grafico.plot(figsize=(10, 5), title=f"Backtest - {ticker} vs IBOV")
+    plt.xlabel("Data")
+    plt.ylabel("Preço")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()  
+
 
 def pegar_balanço(ticker, trimestre):
     token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUwOTM1MjkwLCJpYXQiOjE3NDgzNDMyOTAsImp0aSI6IjQ1ZmFjZmJhMDY0ODRlM2Y5MzY2YTM4NTc3NGMyYTkxIiwidXNlcl9pZCI6NjJ9.EAUCOTA7aSxtnxjjmhgh-SysWJuYEzJ59osxbi_tWfg'
