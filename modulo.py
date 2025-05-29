@@ -38,7 +38,9 @@ def valor_contabil(df, conta, descricao):
 
 def indicador_comparacao(df):
     lucro = valor_contabil(df, '^3.*', 'lucro')
+    lucro
     pl = valor_contabil(df, '^2.*', 'patri')
+    pl
     if pl == 0:
         return {"roe": 0, "eva": 0}
     roe = lucro / pl
@@ -206,3 +208,72 @@ if __name__ == "__main__":
         # Gráfico de desempenho
         backtest(ticker, "2015-05-01", "2025-03-31")
 
+
+
+def backtest_multiplo(empresas, data_ini, data_fim):
+    df_ibov = pegar_preco_diversos("ibov", data_ini, data_fim)
+    if df_ibov.empty:
+        print("Erro ao buscar dados do IBOV.")
+        return
+
+    df_ibov = df_ibov[["data", "fechamento"]].rename(columns={"fechamento": "IBOV"})
+
+    df_final = df_ibov.copy()
+
+    for ticker in empresas:
+        df_preco = pegar_preco_corrigido(ticker, data_ini, data_fim)
+        if df_preco.empty:
+            print(f"Dados ausentes para {ticker}.")
+            continue
+
+        df_preco = df_preco[["data", "fechamento"]].rename(columns={"fechamento": ticker})
+        df_final = pd.merge(df_final, df_preco, on="data", how="inner")
+
+    df_final.set_index("data", inplace=True)
+
+    # Normalizar todos os preços para comparar performance
+    for col in df_final.columns:
+        df_final[col] = df_final[col] / df_final[col].iloc[0]
+
+    df_final.plot(figsize=(14, 6), title="Backtest Comparativo - Empresas vs IBOV")
+    plt.xlabel("Data")
+    plt.ylabel("Variação Normalizada")
+    plt.grid(True)
+    plt.legend(loc='upper left')
+    plt.tight_layout()
+    plt.show()
+print("\n\nGRÁFICO COMPARATIVO MULTIEMPRESAS")
+backtest_multiplo(empresas, "2015-05-01", "2025-03-31")
+
+
+
+def roe_eva_por_anos_selecionados(empresas, anos=[2015, 2020, 2024]):
+    resultados = []
+
+    for ticker in empresas:
+        for ano in anos:
+            try:
+                df = pegar_balanco(ticker, f"{ano}4T")
+                if df.empty:
+                    print(f"Dados ausentes: {ticker} - {ano}4T")
+                    continue
+                comp = indicador_comparacao(df)
+                resultados.append({
+                    "empresa": ticker,
+                    "ano": ano,
+                    "roe": comp["roe"],
+                    "eva": comp["eva"]
+                })
+            except Exception as e:
+                print(f"Erro em {ticker} - {ano}: {e}")
+                continue
+
+    return pd.DataFrame(resultados)
+
+
+
+    anos_alvo = [2015, 2020, 2024]
+    df_resumo = roe_eva_por_anos_selecionados(empresas, anos_alvo)
+
+    print("\n=== ROE & EVA por Empresa nos anos 2015, 2020 e 2024 ===")
+    print(df_resumo)
