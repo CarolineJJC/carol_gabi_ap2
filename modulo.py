@@ -37,9 +37,9 @@ def valor_contabil(df, conta, descricao):
     return df[filtro_conta & filtro_descricao]['valor'].sum()
 
 def indicador_comparacao(df):
-    lucro = valor_contabil(df, '^3.*', 'lucro')
+    lucro = valor_contabil(df, '^3.1', 'lucro')
     lucro
-    pl = valor_contabil(df, '^2.*', 'patri')
+    pl = valor_contabil(df, '^2.03', 'patri')
     pl
     if pl == 0:
         return {"roe": 0, "eva": 0}
@@ -59,7 +59,7 @@ def indicador_fundamentalista(df):
     pl = df[df['descricao'].str.contains('Patrim.nio', case=False)]['valor'].values[0]
     arlp = df[df['descricao'].str.contains('ativo realiz.vel', case=False)]['valor'].values[0]
     pnc = df[df['descricao'].str.contains('passivo n.o circulante', case=False)]['valor'].values[0]
-    estoques = df[df['descricao'].str.contains('estoques', case=False)]['valor'].sum()
+    estoques = df[df['descricao'].str.contains('im.veis', case=False)]['valor'].values[0]
     caixa = df[df['descricao'].str.contains('Caixa', case=False)]['valor'].values[0]
     aplicacoes = df[df['descricao'].str.contains('aplica..es', case=False)]['valor'].values[0]
     passivo_total = df[df['descricao'].str.contains('Passivo Total', case=False)]['valor'].values[0]
@@ -73,7 +73,7 @@ def indicador_fundamentalista(df):
         "liquidez_corrente": ac / pc,
         "liquidez_geral": (ac + arlp) / (pc + pnc),
         "liquidez_seca": (ac - estoques) / pc,
-        "liquidez_imediata": (caixa + aplicacoes) / pc,
+        "liquidez_imediata": caixa/ pc,
         "endividamento": (passivo_total - pl) / passivo_total,
         "solvencia": ativo_total / (passivo_total - pl),
         "relacao_ct_cp": (passivo_total - pl) / pl,
@@ -84,12 +84,14 @@ def indicador_fundamentalista(df):
         "ac": ac,
         "pc": pc,
         "pl": pl,
-        "disponivel": caixa + aplicacoes,
+        "disponivel": caixa,
         "imobilizado": imobilizado,
         "intangivel": intangivel,
         "investimentos": investimentos
     }
     return indicadores
+
+
 
 def print_indicadores(indicadores):
     print("\n=== Indicadores Fundamentais ===")
@@ -97,11 +99,13 @@ def print_indicadores(indicadores):
         print(f"{chave}: {valor:,.2f}")
 
 def calcular_com_2023(df23, indicadores, df):
-    estoque_2024 = df[df['descricao'].str.contains('estoques', case=False)]['valor'].sum()
-    estoque_2023 = df23[df23['descricao'].str.contains('estoques', case=False)]['valor'].sum()
+    estoque_2024 = df[df['descricao'].str.contains('im.veis', case=False)]['valor'].values[0]
+    estoque_2023 = df23[df23['descricao'].str.contains('im.veis', case=False)]['valor'].values[0]
     estoque_med = (estoque_2023 + estoque_2024) / 2
 
-    cmv = df[df['descricao'].str.contains('Custos Prods., Mercs. e Servs. Vendidos', case=False)]['valor'].values[0]
+    cmv = df[df['descricao'].str.contains('Custos Prods., Mercs. e Servs. Vendidos', case=False)]['valor'].values[0]        
+    
+
     pme = (estoque_med / -cmv) * 360
     ge = 360 / pme
 
@@ -113,7 +117,9 @@ def calcular_com_2023(df23, indicadores, df):
 
     fornecedores_2024 = df[df['descricao'].str.contains('fornecedores', case=False)]['valor'].values[0]
     fornecedores_2023 = df23[df23['descricao'].str.contains('fornecedores', case=False)]['valor'].values[0]
-    fornecedores_med = (fornecedores_2024 + fornecedores_2023) / 2
+    terrenos_2024_1 = df[df['conta'].str.contains('2.01.05.02.06', case=False)]['valor'].values[0]
+    terrenos_2023_1 = df[df['conta'].str.contains('2.01.05.02.06', case=False)]['valor'].values[0]
+    fornecedores_med = (fornecedores_2024 + fornecedores_2023 + terrenos_2023_1+terrenos_2024_1) / 2
     compras = estoque_2024 - estoque_2023 + (-cmv)
     pmpf = (fornecedores_med / compras) * 360
 
@@ -124,9 +130,11 @@ def calcular_com_2023(df23, indicadores, df):
     acf = indicadores['caixa'] + indicadores['aplicacoes']
     aco = indicadores['ac'] - acf
 
-    emprestimos = df[df['descricao'].str.contains('empr.stimo', case=False)]['valor'].sum()
-    debentures = df[df['descricao'].str.contains('deb.ntures', case=False)]['valor'].sum()
-    pcf = emprestimos + debentures
+    emprestimos = df[df['descricao'].str.contains('empr.stimo', case=False)]['valor'].values[1]
+    partes_rel = df[df['descricao'].str.contains('Passivos com Partes Relacionadas', case=False)]['valor'].values[0]
+    debentures = df[df['descricao'].str.contains('deb.ntures', case=False)]['valor'].values[0]
+    dividendos = df[df['descricao'].str.contains('Dividendo Mínimo Obrigatório a Pagar', case=False)]['valor'].values[0]
+    pcf = emprestimos + partes_rel + debentures + dividendos
     pco = indicadores['pc'] - pcf
     ncg = aco - pco
     st = acf - pcf
@@ -188,6 +196,15 @@ if __name__ == "__main__":
     trimestre = "20244T"
     for ticker in empresas:
         print(f"\n\n{ticker}")
+
+
+        # Calcular e exibir ROE histórico (2024, 2019, 2014)
+        for ano in ["20244T", "20194T", "20144T"]:
+            df_ano = pegar_balanco(ticker, ano)
+            if not df_ano.empty:
+                comparativo_ano = indicador_comparacao(df_ano)
+                print(f"{ticker} - ROE {ano[:4]}: {comparativo_ano['roe']:.2%}")
+
         df = pegar_balanco(ticker, trimestre)
 
         # Comparativo ROE e EVA
@@ -206,7 +223,8 @@ if __name__ == "__main__":
             print(f"{chave}: {valor:,.2f}")
 
         # Gráfico de desempenho
-        backtest(ticker, "2015-05-01", "2025-03-31")
+        backtest(ticker, "2014-05-01", "2025-03-31")
+
 
 
 
@@ -243,37 +261,6 @@ def backtest_multiplo(empresas, data_ini, data_fim):
     plt.tight_layout()
     plt.show()
 print("\n\nGRÁFICO COMPARATIVO MULTIEMPRESAS")
-backtest_multiplo(empresas, "2015-05-01", "2025-03-31")
+backtest_multiplo(empresas, "2014-05-01", "2025-03-31")
 
 
-
-def roe_eva_por_anos_selecionados(empresas, anos=[2015, 2020, 2024]):
-    resultados = []
-
-    for ticker in empresas:
-        for ano in anos:
-            try:
-                df = pegar_balanco(ticker, f"{ano}4T")
-                if df.empty:
-                    print(f"Dados ausentes: {ticker} - {ano}4T")
-                    continue
-                comp = indicador_comparacao(df)
-                resultados.append({
-                    "empresa": ticker,
-                    "ano": ano,
-                    "roe": comp["roe"],
-                    "eva": comp["eva"]
-                })
-            except Exception as e:
-                print(f"Erro em {ticker} - {ano}: {e}")
-                continue
-
-    return pd.DataFrame(resultados)
-
-
-
-    anos_alvo = [2015, 2020, 2024]
-    df_resumo = roe_eva_por_anos_selecionados(empresas, anos_alvo)
-
-    print("\n=== ROE & EVA por Empresa nos anos 2015, 2020 e 2024 ===")
-    print(df_resumo)
