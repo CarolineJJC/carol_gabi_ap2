@@ -38,19 +38,29 @@ def valor_contabil(df, conta, descricao):
 
 def indicador_comparacao(df):
     lucro = valor_contabil(df, '^3.1', 'lucro')
-    lucro
     pl = valor_contabil(df, '^2.03', 'patri')
-    pl
+
     if pl == 0:
-        return {"roe": 0, "eva": 0}
+        return {"roe": 0, "roi": 0, "eva": 0}
+
     roe = lucro / pl
+
     co = valor_contabil(df, '^2.0', '^empr.stimo') + valor_contabil(df, '^2.0', '^deb.ntures')
     investimento = co + pl
+
+    if investimento == 0:
+        return {"roe": roe, "roi": 0, "eva": 0}
+
+    roi = lucro / investimento
+
     wi, we = co / investimento, pl / investimento
     ki, ke = 0.15, 0.17
     wacc = wi * ki + we * ke
-    eva = roe - wacc
-    return {"roe": roe, "eva": eva}
+
+    eva = roi - wacc
+
+    return {"roe": roe, "roi": roi, "eva": eva}
+
 
 
 def indicador_fundamentalista(df):
